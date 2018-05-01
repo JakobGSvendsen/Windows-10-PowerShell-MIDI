@@ -9,6 +9,7 @@ using Windows.Devices.Midi;
 
 namespace PeteBrown.PowerShellMidi
 {
+    public delegate void MidiClockMessageReceivedEventHandler(object sender, MidiClockMessageReceivedEventArgs e);
     public delegate void MidiNoteOnMessageReceivedEventHandler(object sender, MidiNoteOnMessageReceivedEventArgs e);
     public delegate void MidiNoteOffMessageReceivedEventHandler(object sender, MidiNoteOffMessageReceivedEventArgs e);
     public delegate void MidiControlChangeMessageReceivedEventHandler(object sender, MidiControlChangeMessageReceivedEventArgs e);
@@ -48,6 +49,12 @@ namespace PeteBrown.PowerShellMidi
 
             switch (args.Message.Type)
             {
+                case MidiMessageType.TimingClock:
+                    var MidiTimeCode = args.Message as MidiTimingClockMessage;
+                    var evClock = MidiClockMessageReceived;
+                    if (evClock != null)
+                        evClock(this, new MidiClockMessageReceivedEventArgs(MidiTimeCode.RawData, MidiTimeCode.Timestamp, MidiTimeCode.Type));
+                    break;
                 case MidiMessageType.NoteOn:
                     var noteOnMessage = args.Message as MidiNoteOnMessage;
 
@@ -117,9 +124,9 @@ namespace PeteBrown.PowerShellMidi
 
         //private void EventAsyncCallback(IAsyncResult ar)
         //{
-            
-        //}
 
+        //}
+        public event MidiClockMessageReceivedEventHandler MidiClockMessageReceived;
         public event MidiNoteOnMessageReceivedEventHandler NoteOnMessageReceived;
         public event MidiNoteOffMessageReceivedEventHandler NoteOffMessageReceived;
         public event MidiControlChangeMessageReceivedEventHandler ControlChangeMessageReceived;
